@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Solacy - Creative Agency</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <style>
+      /* Base styles for body and HTML */
+      body {
+        font-family: "Quicksand", Helvetica, sans-serif;
+        overflow-x: hidden; /* Mencegah scroll horizontal yang tidak diinginkan */
+      }
+      html {
+        scroll-behavior: smooth; /* Untuk animasi smooth scroll navigasi */
+      }
+
+      /* Loading Screen Styles */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background-color: #e4157e; /* Warna background pink Solacy */
+        z-index: 1000; /* Pastikan di atas semua elemen */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2.5rem;
+        font-weight: bold;
+        transition: opacity 1s ease-out;
+        opacity: 1;
+      }
+      #loading-screen.hidden {
+        pointer-events: none; /* Nonaktifkan interaksi saat tersembunyi */
+        opacity: 0;
+      }
+      /* Loading screen animation */
+      @keyframes fadeOutZoomIn {
+        0% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: scale(1.1);
+        }
+      }
+      #loading-screen.animate-hidden {
+        animation: fadeOutZoomIn 1s forwards;
+      }
+
+      /* Navbar Styles */
+      #main-navbar {
+        position: absolute; /* Awalnya absolut di atas video */
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: transparent; /* Awalnya transparan penuh */
+        transition: background-color 0.3s ease-in-out, position 0.3s ease-in-out,
+          top 0.3s ease-in-out;
+        z-index: 50; /* Di atas konten tapi di bawah loading screen */
+      }
+      #main-navbar.sticky {
+        position: fixed;
+        top: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(228, 21, 126, 1) 0%,
+          rgba(126, 12, 70, 1) 100%
+        ); /* Penuh saat sticky */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .navbar-link {
+        position: relative;
+        transition: transform 0.3s ease-in-out;
+      }
+      .navbar-link:hover {
+        transform: scale(1.05); /* Memperbesar tulisan saat hover */
+      }
+      .navbar-link::after {
+        content: "";
+        display: block;
+        width: 0;
+        height: 2px;
+        background: white;
+        transition: width 0.3s ease-in-out; /* Animasi garis putih */
+      }
+      .navbar-link:hover::after {
+        width: 100%;
+      }
+      .solacy-logo {
+        transition: transform 0.3s ease-in-out;
+      }
+      .solacy-logo:hover {
+        transform: scale(1.1); /* Memperbesar logo saat hover */
+      }
+
+      /* Mobile Menu Overlay */
+      #mobile-menu-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh; /* Use 100vh to ensure it covers the whole screen */
+        background: linear-gradient(
+          180deg,
+          rgba(228, 21, 126, 1) 0%,
+          rgba(126, 12, 70, 1) 100%
+        );
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        z-index: 90; /* Higher than navbar, lower than loading screen */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem; /* Spacing between links */
+      }
+      #mobile-menu-overlay.is-open {
+        transform: translateX(0);
+      }
+      .mobile-navbar-link {
+        font-size: 2.5rem; /* Large font for mobile menu */
+        color: white;
+        padding: 1rem 0; /* Vertical padding */
+        transition: all 0.3s ease-in-out;
+      }
+      .mobile-navbar-link:hover {
+        transform: scale(1.05);
+        text-decoration: underline;
+      }
+
+      /* Home Video Section */
+      #home-video-section {
+        position: relative;
+        width: 100%;
+        height: 100vh; /* Full viewport height */
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+      }
+      .video-background-container {
+        position: fixed; /* Video tetap di posisi fixed */
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+        z-index: -3; /* Di belakang semua konten */
+      }
+      .video-background {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        filter: brightness(1); /* Awalnya tidak gelap */
+        transition: filter 0.5s ease-in-out;
+        transform: translateZ(
+          0
+        ); /* Mencegah flickering pada beberapa browser */
+      }
+      .video-background.blurred {
+        filter: blur(8px) brightness(0.5); /* Blur dan gelap saat discroll */
+      }
+      .home-video-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.3); /* Overlay untuk kontras teks */
+        z-index: -2; /* Di atas video fixed, di bawah konten utama */
+      }
+
+      /* About Us Section (Circle and Half-circle) */
+      #about-us-section {
+        position: relative;
+        z-index: 1; /* Di atas video background fixed */
+        min-height: 100vh; /* Tinggi minimal agar ada ruang scroll */
+        background-color: transparent; /* Awalnya transparan */
+        padding-top: 100px; /* Jarak dari atas setelah scroll */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+      }
+      /* White Half-Circle Background */
+      #white-half-circle {
+        width: 700px; /* Ukuran dasar, bisa disesuaikan */
+        height: 700px;
+        background-color: white;
+        border-radius: 50%;
+        position: absolute;
+        opacity: 0;
+        transition: transform 0.8s ease-out, opacity 0.8s ease-out; /* Changed from 0.1s to 0.8s for smooth exit */
+        transform: translate(-50%, -50%) scale(0); /* Awalnya kecil dan tersembunyi */
+        z-index: 9; /* Di belakang lingkaran pink */
+      }
+      #white-half-circle.visible {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      /* Additional Subtract Image */
+      .additional-subtract-image {
+        position: absolute;
+        opacity: 0;
+        transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+        transform: translate(-50%, -50%) scale(0); /* Awalnya kecil dan tersembunyi */
+        z-index: 8; /* Di belakang white half-circle */
+      }
+      .additional-subtract-image.visible {
+        opacity: 1;
+        /* Scale and position set by JS for dynamic sizing/offset */
+      }
+
+      .about-circle {
+        background: linear-gradient(
+          180deg,
+          rgba(228, 21, 126, 1) 0%,
+          rgba(126, 12, 70, 1) 100%
+        );
+        border-radius: 50%;
+        position: absolute;
+        transform: translate(-50%, -50%) scale(0); /* Awalnya kecil dan tersembunyi */
+        transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+          opacity 0.8s ease-out; /* Changed transform transition to 0.8s for smooth exit */
+        opacity: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        padding: 20px;
+        cursor: pointer; /* Menambahkan cursor pointer untuk interaksi hover */
+      }
+      .about-circle.visible {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+      }
+
+      .about-text {
+        color: white;
+        font-size: clamp(1rem, 4vw, 1.5rem); /* Responsive font size */
+        font-weight: 500;
+        transition: opacity 0.5s ease-in-out;
+        text-wrap: balance; /* Helps text wrap better */
+        word-break: break-word; /* Ensure text breaks within container */
+      }
+
+      /* Services Section */
+      .services-section-bg {
+        background: linear-gradient(
+          180deg,
+          rgba(228, 21, 126, 1) 0%,
+          rgba(126, 12, 70, 1) 100%
+        );
+      }
+      .service-icon-wrapper {
+        transform: translateX(-100px); /* Awalnya di luar layar kiri */
+        opacity: 0;
+        transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+      }
+      .service-icon-wrapper.animate {
+        transform: translateX(0); /* Bergerak ke posisi asli */
+        opacity: 1;
+      }
+      .service-card {
+        background-color: white; /* Tidak semi-transparan lagi */
+        transition: background-color 0.3s ease-in-out;
+      }
+      .service-card p {
+        opacity: 0;
+        height: 0;
+        overflow: hidden;
+        transition: opacity 0.3s ease-in-out, height 0.3s ease-in-out;
+      }
+      .service-card:hover p {
+        opacity: 1;
+        height: auto; /* Biarkan konten menentukan tinggi */
+      }
+      .service-card:hover h3 {
+        transform: translateY(-5px);
+        color: #d55897; /* Warna pink saat hover */
+      }
+      /* Increased icon size */
+      .service-card img {
+        width: 160px; /* w-40 equivalent */
+        height: 160px; /* h-40 equivalent */
+      }
+
+      /* Works Section */
+      .works-section-bg {
+        background-color: white; /* Latar belakang putih */
+      }
+      .tape-image {
+        position: absolute;
+        left: 0;
+        top: 50%; /* Memanjang di tengah vertikal */
+        width: 100%; /* Memanjang full width */
+        height: auto;
+        transform: translateY(-50%) translateX(100%); /* Awalnya di luar layar kanan */
+        opacity: 0;
+        transition: transform 1.5s ease-out, opacity 1.5s ease-out;
+        z-index: 10; /* Di belakang cards */
+      }
+      .tape-image.animate {
+        transform: translateY(-50%) translateX(0); /* Bergerak ke posisi asli */
+        opacity: 1;
+      }
+
+      .portfolio-card {
+        transform: translateY(50px); /* Awalnya di bawah */
+        opacity: 0;
+        transition: transform 0.6s ease-out, opacity 0.6s ease-out,
+          box-shadow 0.3s ease-in-out;
+        cursor: grab;
+        z-index: 20; /* Di atas tape */
+      }
+      .portfolio-card.animate {
+        transform: translateY(0); /* Bergerak ke posisi asli */
+        opacity: 1;
+      }
+      .portfolio-card:hover {
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2); /* Efek bayangan saat hover */
+        transform: translateY(-5px); /* Sedikit naik */
+      }
+      .portfolio-card:active {
+        cursor: grabbing;
+      }
+
+      /* Slider styles */
+      .slider-container {
+        display: flex;
+        overflow-x: scroll;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch; /* Untuk smooth scrolling di iOS */
+        padding-bottom: 20px;
+        gap: 20px;
+      }
+      .slider-container::-webkit-scrollbar {
+        display: none; /* Sembunyikan scrollbar untuk webkit browsers */
+      }
+      .slider-item {
+        flex: 0 0 auto; /* Item tidak akan mengecil */
+        scroll-snap-align: center; /* Snap ke tengah item */
+        width: 300px; /* Lebar card */
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        transition: transform 0.3s ease-in-out;
+      }
+
+      /* Contact Section */
+      #contact {
+        background-image: url("img/image 2.png"); /* Latar belakang gambar */
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        overflow: hidden;
+      }
+      #contact::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7); /* Overlay gelap */
+        z-index: 1;
+      }
+      #contact .container {
+        position: relative;
+        z-index: 2; /* Pastikan konten form di atas overlay */
+      }
+      /* Style untuk form */
+      #contact form {
+        background-color: rgba(
+          255,
+          255,
+          255,
+          0.95
+        ); /* Sedikit transparan untuk melihat background */
+        padding: 40px;
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      }
+      #contact input,
+      #contact textarea {
+        border: 1px solid #ddd;
+        padding: 12px;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s, box-shadow 0.3s;
+      }
+      #contact input:focus,
+      #contact textarea:focus {
+        outline: none;
+        border-color: #e4157e;
+        box-shadow: 0 0 0 3px rgba(228, 21, 126, 0.3);
+      }
+      #contact button[type="submit"] {
+        background-color: #e4157e;
+        padding: 12px 28px;
+        border-radius: 50px;
+        font-weight: bold;
+        transition: background-color 0.3s, transform 0.3s;
+      }
+      #contact button[type="submit"]:hover {
+        background-color: #a30e5f;
+        transform: translateY(-2px);
+      }
+
+      /* Sticky CTA Button */
+      .sticky-cta {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 100;
+        transition: transform 0.3s ease-in-out, filter 0.3s ease-in-out;
+        cursor: pointer;
+      }
+      .sticky-cta:hover {
+        transform: scale(1.1); /* Membesar saat hover */
+        filter: brightness(1.2); /* Sedikit lebih terang */
+      }
+      .sticky-cta img {
+        width: 90px; /* Ukuran default lebih besar */
+        height: 90px;
+      }
+
+      /* Footer Social Icons */
+      .social-icon {
+        display: flex; /* Untuk menata ikon dan teks */
+        align-items: center;
+        transition: transform 0.3s ease-in-out, color 0.3s ease-in-out;
+      }
+      .social-icon:hover {
+        transform: scale(1.1); /* Membesar saat hover */
+        color: #ccc; /* Warna sedikit berubah */
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+      <h1 class="text-5xl md:text-6xl">Welcome to Solacy</h1>
+      <p class="text-xl md:text-2xl mt-2">
+        Your creative partner for impactful brands.
+      </p>
+    </div>
+
+    <!-- Navbar -->
+    <nav id="main-navbar" class="p-4 text-white z-50 shadow-md">
+      <div class="container mx-auto flex justify-between items-center">
+        <a
+          href="#home-video-section"
+          class="text-2xl font-bold solacy-logo transition-transform duration-300"
+          >solacy</a
+        >
+        <div
+          class="hidden md:flex space-x-6 md:space-x-10"
+          id="desktop-nav-links"
+        >
+          <a
+            href="#about-us-section"
+            class="navbar-link text-lg relative transition-transform duration-300"
+            >About</a
+          >
+          <a
+            href="#services"
+            class="navbar-link text-lg relative transition-transform duration-300"
+            >Service</a
+          >
+          <a
+            href="#works"
+            class="navbar-link text-lg relative transition-transform duration-300"
+            >Works</a
+          >
+          <a
+            href="#contact"
+            class="navbar-link text-lg relative transition-transform duration-300"
+            >Contact</a
+          >
+        </div>
+        <div class="md:hidden">
+          <button id="hamburger-menu" class="text-white focus:outline-none">
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu Overlay -->
+      <div
+        id="mobile-menu-overlay"
+        class="fixed top-0 left-0 w-full h-full bg-gradient-to-b from-pink-600 to-pink-800 transform translate-x-full transition-transform duration-300 ease-in-out z-40 flex flex-col items-center justify-center space-y-8 md:hidden"
+      >
+        <button
+          id="close-menu"
+          class="absolute top-4 right-4 text-white focus:outline-none"
+        >
+          <i class="fas fa-times text-3xl"></i>
+        </button>
+        <a
+          href="#about-us-section"
+          class="mobile-navbar-link text-3xl text-white py-4 transition-all duration-300"
+          >About</a
+        >
+        <a
+          href="#services"
+          class="mobile-navbar-link text-3xl text-white py-4 transition-all duration-300"
+          >Service</a
+        >
+        <a
+          href="#works"
+          class="mobile-navbar-link text-3xl text-white py-4 transition-all duration-300"
+          >Works</a
+        >
+        <a
+          href="#contact"
+          class="mobile-navbar-link text-3xl text-white py-4 transition-all duration-300"
+          >Contact</a
+        >
+      </div>
+    </nav>
+
+    <!-- Fixed Video Background Container (always at top) -->
+    <div class="video-background-container">
+      <video
+        id="background-video"
+        class="video-background"
+        autoplay
+        muted
+        loop
+        playsinline
+      >
+        <source src="video/company-profile.mp4" type="video/mp4" />
+        Browser Anda tidak mendukung tag video.
+      </video>
+    </div>
+
+    <!-- Home Video Section - Initial view -->
+    <section id="home-video-section" class="relative w-full h-screen">
+      <div class="home-video-overlay"></div>
+      <!-- No content here, just for height and initial video view -->
+    </section>
+
+    <!-- About Us Section - Circle and Half-circle -->
+    <section
+      id="about-us-section"
+      class="py-20 relative z-10 min-h-screen flex flex-col items-center justify-center text-white"
+    >
+      <!-- Overlay if needed, or rely on video background's brightness -->
+      <div class="absolute inset-0 bg-black opacity-30 z-0"></div>
+
+      <!-- White Half-Circle Background -->
+      <div
+        id="white-half-circle"
+        class="absolute bg-white rounded-full"
+        style="left: 50%; top: 50%"
+      ></div>
+
+      <!-- Additional Subtract Image -->
+      <img
+        id="additional-subtract-logo"
+        src="img/subtract.png"
+        alt="Solacy Logo Subtract"
+        class="additional-subtract-image"
+        style="left: 50%; top: 50%"
+      />
+
+      <!-- Animated Circle for About Content -->
+      <div
+        id="about-circle"
+        class="about-circle w-[500px] h-[500px] md:w-[600px] md:h-[600px]"
+        style="left: 50%; top: 50%"
+      >
+        <p id="about-content-text" class="about-text p-4">
+          We don’t just create campaigns. We create calm, clear, and confident
+          brands.
+        </p>
+      </div>
+    </section>
+
+    <!-- Services Section -->
+    <section
+      id="services"
+      class="services-section-bg py-20 relative z-20 min-h-screen flex flex-col items-center justify-center"
+    >
+      <div class="container mx-auto text-center px-4">
+        <h2 class="text-4xl font-bold text-white mb-12">Our Services</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          <div
+            class="service-icon-wrapper flex flex-col items-center p-6 rounded-lg shadow-lg service-card"
+          >
+            <img
+              src="img/sosmed1.png"
+              alt="Social Media Icon"
+              class="w-40 h-40 mb-4 object-contain"
+            />
+            <h3
+              class="text-xl font-semibold text-gray-700 mt-2 service-card-text transition-all duration-300"
+            >
+              Social Media Management
+            </h3>
+            <p
+              class="text-gray-600 text-center mt-2 transition-all duration-300"
+            >
+              Strategize, create, and manage engaging social media content to
+              boost your brand's presence.
+            </p>
+          </div>
+          <div
+            class="service-icon-wrapper flex flex-col items-center p-6 rounded-lg shadow-lg service-card"
+          >
+            <img
+              src="img/camera1.png"
+              alt="Photoshoot Icon"
+              class="w-40 h-40 mb-4 object-contain"
+            />
+            <h3
+              class="text-xl font-semibold text-gray-700 mt-2 service-card-text transition-all duration-300"
+            >
+              Photoshoot & Videoshoot
+            </h3>
+            <p
+              class="text-gray-600 text-center mt-2 transition-all duration-300"
+            >
+              High-quality visual content creation to capture your brand's
+              essence and tell its story.
+            </p>
+          </div>
+          <div
+            class="service-icon-wrapper flex flex-col items-center p-6 rounded-lg shadow-lg service-card"
+          >
+            <img
+              src="img/campaign1.png"
+              alt="Campaign Icon"
+              class="w-40 h-40 mb-4 object-contain"
+            />
+            <h3
+              class="text-xl font-semibold text-gray-700 mt-2 service-card-text transition-all duration-300"
+            >
+              Campaign Package
+            </h3>
+            <p
+              class="text-gray-600 text-center mt-2 transition-all duration-300"
+            >
+              Comprehensive campaign strategies from concept to execution,
+              driving measurable results.
+            </p>
+          </div>
+          <div
+            class="service-icon-wrapper flex flex-col items-center p-6 rounded-lg shadow-lg service-card"
+          >
+            <img
+              src="img/live1.png"
+              alt="Live Shopping Icon"
+              class="w-40 h-40 mb-4 object-contain"
+            />
+            <h3
+              class="text-xl font-semibold text-gray-700 mt-2 service-card-text transition-all duration-300"
+            >
+              Live Shopping Package
+            </h3>
+            <p
+              class="text-gray-600 text-center mt-2 transition-all duration-300"
+            >
+              Engage your audience with interactive live shopping experiences
+              for product launches and sales.
+            </p>
+          </div>
+          <div
+            class="service-icon-wrapper flex flex-col items-center p-6 rounded-lg shadow-lg service-card"
+          >
+            <img
+              src="img/web1.png"
+              alt="Web Design Icon"
+              class="w-40 h-40 mb-4 object-contain"
+            />
+            <h3
+              class="text-xl font-semibold text-gray-700 mt-2 service-card-text transition-all duration-300"
+            >
+              Web Design Service
+            </h3>
+            <p
+              class="text-gray-600 text-center mt-2 transition-all duration-300"
+            >
+              Crafting stunning and functional websites that captivate visitors
+              and convert leads.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Works Section -->
+    <section
+      id="works"
+      class="works-section-bg py-20 relative z-20 min-h-screen flex flex-col items-center justify-center overflow-hidden"
+    >
+      <!-- Tape background image -->
+      <img
+        id="tape-image"
+        src="img/tape.png"
+        alt="Tape Animation"
+        class="tape-image"
+      />
+
+      <div class="container mx-auto text-center px-4 relative z-20">
+        <h2 class="text-4xl font-bold text-gray-800 mb-12">Our Works</h2>
+
+        <div class="slider-container mt-16 max-w-full lg:max-w-4xl mx-auto">
+          <div class="slider-item portfolio-card p-6">
+            <img
+              src="https://placehold.co/300x200/cccccc/FFFFFF?text=Portfolio+1"
+              alt="Portfolio Image 1"
+              class="w-full h-auto rounded-md mb-4"
+            />
+            <h3 class="text-xl font-semibold text-gray-700">
+              Lorem Ipsum Project 1
+            </h3>
+            <p class="text-gray-600 mt-2">
+              A dummy project description for portfolio item 1.
+            </p>
+          </div>
+          <div class="slider-item portfolio-card p-6">
+            <img
+              src="https://placehold.co/300x200/cccccc/FFFFFF?text=Portfolio+2"
+              alt="Portfolio Image 2"
+              class="w-full h-auto rounded-md mb-4"
+            />
+            <h3 class="text-xl font-semibold text-gray-700">
+              Lorem Ipsum Project 2
+            </h3>
+            <p class="text-gray-600 mt-2">
+              A dummy project description for portfolio item 2.
+            </p>
+          </div>
+          <div class="slider-item portfolio-card p-6">
+            <img
+              src="https://placehold.co/300x200/cccccc/FFFFFF?text=Portfolio+3"
+              alt="Portfolio Image 3"
+              class="w-full h-auto rounded-md mb-4"
+            />
+            <h3 class="text-xl font-semibold text-gray-700">
+              Lorem Ipsum Project 3
+            </h3>
+            <p class="text-gray-600 mt-2">
+              A dummy project description for portfolio item 3.
+            </p>
+          </div>
+          <div class="slider-item portfolio-card p-6">
+            <img
+              src="https://placehold.co/300x200/cccccc/FFFFFF?text=Portfolio+4"
+              alt="Portfolio Image 4"
+              class="w-full h-auto rounded-md mb-4"
+            />
+            <h3 class="text-xl font-semibold text-gray-700">
+              Lorem Ipsum Project 4
+            </h3>
+            <p class="text-gray-600 mt-2">
+              A dummy project description for portfolio item 4.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section
+      id="contact"
+      class="py-20 text-white min-h-screen flex items-center justify-center"
+    >
+      <div class="container mx-auto text-center px-4">
+        <h2 class="text-4xl font-bold mb-12">Let's Talk About Your Project!</h2>
+        <p class="text-lg mb-8">
+          Fill out the form below to schedule a meeting with us.
+        </p>
+        <form class="max-w-lg mx-auto p-8 rounded-lg shadow-lg text-gray-800">
+          <div class="mb-4 text-left">
+            <label for="name" class="block text-gray-700 text-sm font-bold mb-2"
+              >Name:</label
+            >
+            <input
+              type="text"
+              id="name"
+              name="name"
+              class="w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="Your Name"
+              required
+            />
+          </div>
+          <div class="mb-4 text-left">
+            <label
+              for="email"
+              class="block text-gray-700 text-sm font-bold mb-2"
+              >Email:</label
+            >
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="Your Email"
+              required
+            />
+          </div>
+          <div class="mb-4 text-left">
+            <label
+              for="company"
+              class="block text-gray-700 text-sm font-bold mb-2"
+              >Company (Optional):</label
+            >
+            <input
+              type="text"
+              id="company"
+              name="company"
+              class="w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="Your Company"
+            />
+          </div>
+          <div class="mb-6 text-left">
+            <label
+              for="message"
+              class="block text-gray-700 text-sm font-bold mb-2"
+              >Tell Us About Your Project:</label
+            >
+            <textarea
+              id="message"
+              name="message"
+              rows="5"
+              class="w-full py-2 px-3 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="I'm looking for..."
+            ></textarea>
+          </div>
+          <button
+            type="submit"
+            class="text-white font-bold py-2 px-6 rounded-full focus:outline-none focus:shadow-outline"
+          >
+            Schedule a Meeting
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- Sticky CTA Button -->
+    <div id="sticky-cta-button" class="sticky-cta">
+      <img id="cta-img" src="img/cta-icon.png" alt="CTA Button" />
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gradient-to-r from-pink-600 to-pink-800 text-white py-12">
+      <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
+        <!-- Address -->
+        <div>
+          <h3 class="text-xl font-bold mb-4">Address</h3>
+          <p>
+            Lorem ipsum dolor sit amet consectetur adipiscing elit. Donec
+            vulputate egestas non , nec metus.
+          </p>
+          <div
+            id="map"
+            class="w-full h-48 bg-gray-300 rounded-lg mt-4 overflow-hidden"
+          >
+            <!-- Google Maps Embed will go here -->
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.368798950669!2d106.82025731476978!3d-6.215570295504825!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f44c4f9f7d45%3A0x7d2f9d8d6d2a7c7!2sMonumen%20Nasional!5e0!3m2!1sen!2sid!4v1678888888888!5m2!1sen!2sid"
+              width="100%"
+              height="100%"
+              style="border: 0"
+              allowfullscreen=""
+              loading="lazy"
+            ></iframe>
+          </div>
+        </div>
+
+        <!-- Contact & Email -->
+        <div>
+          <h3 class="text-xl font-bold mb-4">Contact & Email</h3>
+          <p class="mb-2">Email: contact@solacy.com</p>
+          <p>Phone: +62 812 3456 7890</p>
+        </div>
+
+        <!-- Social Media -->
+        <div>
+          <h3 class="text-xl font-bold mb-4">Follow Us</h3>
+          <div class="flex flex-col space-y-4">
+            <!-- Diubah menjadi kolom (atas-bawah) -->
+            <a
+              href="https://instagram.com/solacy_agency"
+              target="_blank"
+              class="text-white hover:text-gray-300 social-icon"
+            >
+              <i class="fab fa-instagram fa-2x"></i>
+              <span class="ml-2">solacy_agency</span>
+            </a>
+            <a
+              href="https://tiktok.com/@solacy_agency"
+              target="_blank"
+              class="text-white hover:text-gray-300 social-icon"
+            >
+              <i class="fab fa-tiktok fa-2x"></i>
+              <span class="ml-2">@solacy_agency</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="text-center mt-8 text-sm text-gray-300">
+        &copy; 2024 Solacy Creative Agency. All rights reserved.
+      </div>
+    </footer>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const loadingScreen = document.getElementById("loading-screen");
+        const mainNavbar = document.getElementById("main-navbar");
+        const homeVideoSection = document.getElementById("home-video-section");
+        const aboutUsSection = document.getElementById("about-us-section");
+        const videoBackground = document.getElementById("background-video");
+        const whiteHalfCircle = document.getElementById("white-half-circle");
+        const aboutCircle = document.getElementById("about-circle");
+        const aboutContentText = document.getElementById("about-content-text");
+        const additionalSubtractLogo = document.getElementById(
+          "additional-subtract-logo"
+        );
+
+        // Mobile Menu elements
+        const hamburgerMenu = document.getElementById("hamburger-menu");
+        const mobileMenuOverlay = document.getElementById(
+          "mobile-menu-overlay"
+        );
+        const closeMenu = document.getElementById("close-menu");
+        const mobileNavLinks = document.querySelectorAll(".mobile-navbar-link");
+
+        // --- Loading Screen Animation ---
+        setTimeout(() => {
+          loadingScreen.classList.add("animate-hidden"); // Trigger CSS animation
+          setTimeout(() => {
+            loadingScreen.remove(); // Remove from DOM after animation
+          }, 1000); // Matches CSS animation duration
+        }, 2000); // Display for 2 seconds
+
+        // --- Smooth scrolling for navigation links ---
+        document.querySelectorAll("nav a").forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute("href");
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+              targetElement.scrollIntoView({
+                behavior: "smooth",
+              });
+            }
+          });
+        });
+
+        // --- Navbar Transparency and Stickiness ---
+        window.addEventListener("scroll", () => {
+          const scrollPosition = window.scrollY;
+          // Make navbar sticky after scrolling past the home video section
+          if (
+            scrollPosition >
+            homeVideoSection.offsetHeight - mainNavbar.offsetHeight
+          ) {
+            mainNavbar.classList.add("sticky");
+          } else {
+            mainNavbar.classList.remove("sticky");
+          }
+
+          // Parallax effect and blur for video background (applies when scrolling past home section)
+          const homeVideoRect = homeVideoSection.getBoundingClientRect();
+          const scrollProgress = Math.max(
+            0,
+            Math.min(1, -homeVideoRect.top / (window.innerHeight / 2))
+          );
+
+          const blurAmount = scrollProgress * 8; // Max 8px blur
+          const brightnessAmount = 1 - scrollProgress * 0.5; // Goes from 1 to 0.5
+          videoBackground.style.filter = `blur(${blurAmount}px) brightness(${brightnessAmount})`;
+        });
+
+        // --- About Us Section Animations (Circle, Half-Circle, Text) ---
+        const text1 =
+          "We don’t just create campaigns. We create calm, clear, and confident brands.";
+        const text2_full =
+          "With complete creative services from social to site, content to campaign Solacy helps your brand connect with impact."; // Full second text
+
+        // Mouse follow variables for About Circle
+        let mouseX = 0;
+        let mouseY = 0;
+        let isHoveredOnAboutCircle = false; // New state to track hover for mouse follow
+        const moveSensitivity = 0.05; // How much the circle moves relative to mouse (smaller value = less movement)
+        const whiteCircleOffsetFactor = 0.1; // White circle moves slightly less, to create parallax depth
+        const additionalSubtractOffsetFactor = 0.2; // Additional subtract moves slightly more
+
+        const updateCirclePosition = () => {
+          if (
+            !aboutCircle.classList.contains("visible") ||
+            !isHoveredOnAboutCircle
+          )
+            return;
+
+          const sectionRect = aboutUsSection.getBoundingClientRect();
+          const sectionCenterX = sectionRect.left + sectionRect.width / 2;
+          const sectionCenterY = sectionRect.top + sectionRect.height / 2;
+
+          const offsetX = mouseX - sectionCenterX;
+          const offsetY = mouseY - sectionCenterY;
+
+          const maxMove = 50; // Max pixels to move
+          const clampedOffsetX = Math.max(
+            -maxMove,
+            Math.min(maxMove, offsetX * moveSensitivity)
+          );
+          const clampedOffsetY = Math.max(
+            -maxMove,
+            Math.min(maxMove, offsetY * moveSensitivity)
+          );
+
+          aboutCircle.style.transform = `translate(calc(-50% + ${clampedOffsetX}px), calc(-50% + ${clampedOffsetY}px)) scale(1)`;
+          whiteHalfCircle.style.transform = `translate(calc(-50% - ${
+            clampedOffsetX * whiteCircleOffsetFactor
+          }px), calc(-50% - ${
+            clampedOffsetY * whiteCircleOffsetFactor
+          }px)) scale(1)`;
+
+          // Calculate size based on current aboutCircle width (which is `circleSize` when visible)
+          const currentCircleWidth = aboutCircle.offsetWidth;
+          const subtractHeightOffset = currentCircleWidth * 0.2; // Move it down by 20% of circle width
+
+          additionalSubtractLogo.style.transform = `translate(calc(-50% + ${
+            clampedOffsetX * additionalSubtractOffsetFactor
+          }px), calc(-50% + ${
+            clampedOffsetY * additionalSubtractOffsetFactor +
+            subtractHeightOffset
+          }px)) scale(1)`;
+        };
+
+        const handleMouseMoveAboutSection = (e) => {
+          mouseX = e.clientX;
+          mouseY = e.clientY;
+          updateCirclePosition();
+        };
+
+        const aboutUsObserverOptions = {
+          root: null,
+          rootMargin: "0px",
+          threshold: 0.1, // Trigger when 10% of the section is visible
+        };
+
+        const aboutUsObserver = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              aboutCircle.classList.add("visible");
+              whiteHalfCircle.classList.add("visible");
+              additionalSubtractLogo.classList.add("visible");
+
+              // Set circle size dynamically
+              const circleSize = Math.min(
+                aboutUsSection.offsetWidth * 0.7,
+                aboutUsSection.offsetHeight * 0.7,
+                600
+              ); // Max 600px
+              aboutCircle.style.width = `${circleSize}px`;
+              aboutCircle.style.height = `${circleSize}px`;
+
+              // Set white half-circle size and position dynamically
+              const halfCircleSize = circleSize * 1.3; // Make it larger than the pink circle
+              whiteHalfCircle.style.width = `${halfCircleSize}px`;
+              whiteHalfCircle.style.height = `${halfCircleSize}px`;
+
+              // Set additional subtract image size and initial position
+              additionalSubtractLogo.style.width = `${circleSize * 3}px`; // 2x lingkaran
+              additionalSubtractLogo.style.height = `${circleSize * 1.8}px`; // 3/4 lingkaran
+              const subtractHeightOffset = circleSize * 0.2; // Offset for "agak kebawah"
+              additionalSubtractLogo.style.transform = `translate(-50%, calc(-50% + ${subtractHeightOffset}px)) scale(1)`;
+
+              // Set initial text
+              aboutContentText.textContent = text1;
+            } else {
+              // When NOT intersecting, remove visible class for smooth exit animation
+              aboutCircle.classList.remove("visible");
+              whiteHalfCircle.classList.remove("visible");
+              additionalSubtractLogo.classList.remove("visible"); // Remove visible class for the new subtract image
+              isHoveredOnAboutCircle = false; // Reset hover state
+              aboutUsSection.removeEventListener(
+                "mousemove",
+                handleMouseMoveAboutSection
+              ); // Stop tracking
+              // The CSS transition will handle the smooth scale-out and fade-out.
+              // Reset text to initial state when section is not visible
+              aboutContentText.textContent = text1;
+            }
+          });
+        }, aboutUsObserverOptions);
+
+        aboutUsObserver.observe(aboutUsSection);
+
+        // Text change and dynamic movement on hover for About circle
+        aboutCircle.addEventListener("mouseenter", () => {
+          isHoveredOnAboutCircle = true;
+          // Change text
+          aboutContentText.textContent = text1 + " " + text2_full; // Append full second text
+          // Start mouse tracking on the entire section for smoother follow
+          aboutUsSection.addEventListener(
+            "mousemove",
+            handleMouseMoveAboutSection
+          );
+          // Initial update in case mouse is already moving
+          updateCirclePosition();
+        });
+
+        aboutCircle.addEventListener("mouseleave", () => {
+          isHoveredOnAboutCircle = false;
+          // Revert text
+          aboutContentText.textContent = text1;
+          // Stop mouse tracking
+          aboutUsSection.removeEventListener(
+            "mousemove",
+            handleMouseMoveAboutSection
+          );
+          // Reset positions to initial (centered) by letting CSS transitions handle it
+          if (aboutCircle.classList.contains("visible")) {
+            // Only reset if still visible (not scrolled out)
+            aboutCircle.style.transform = `translate(-50%, -50%) scale(1)`;
+            whiteHalfCircle.style.transform = `translate(-50%, -50%) scale(1)`;
+            // Reset additional subtract image position
+            const circleSize = Math.min(
+              aboutUsSection.offsetWidth * 0.7,
+              aboutUsSection.offsetHeight * 0.7,
+              600
+            );
+            const subtractHeightOffset = circleSize * 0.2;
+            additionalSubtractLogo.style.transform = `translate(-50%, calc(-50% + ${subtractHeightOffset}px)) scale(1)`;
+          }
+        });
+
+        // --- Services Section Animations ---
+        const servicesSection = document.getElementById("services");
+        const serviceIconWrappers = document.querySelectorAll(
+          ".service-icon-wrapper"
+        );
+
+        const servicesObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                serviceIconWrappers.forEach((wrapper, index) => {
+                  setTimeout(() => {
+                    wrapper.classList.add("animate");
+                  }, index * 200);
+                });
+              } else {
+                serviceIconWrappers.forEach((wrapper) =>
+                  wrapper.classList.remove("animate")
+                );
+              }
+            });
+          },
+          { threshold: 0.2 }
+        );
+
+        servicesObserver.observe(servicesSection);
+
+        // --- Works Section Animations (Tape and Portfolio Cards) ---
+        const worksSection = document.getElementById("works");
+        const tapeImage = document.getElementById("tape-image");
+        const portfolioCards = document.querySelectorAll(".portfolio-card");
+
+        const worksObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                tapeImage.classList.add("animate");
+                setTimeout(() => {
+                  portfolioCards.forEach((card, index) => {
+                    setTimeout(() => {
+                      card.classList.add("animate");
+                    }, index * 150);
+                  });
+                }, 800);
+              } else {
+                tapeImage.classList.remove("animate");
+                portfolioCards.forEach((card) =>
+                  card.classList.remove("animate")
+                );
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
+
+        worksObserver.observe(worksSection);
+
+        // --- Sticky CTA Button image change on hover ---
+        const ctaButton = document.getElementById("sticky-cta-button");
+        const ctaImg = document.getElementById("cta-img");
+        const originalCtaSrc = "img/cta-icon.png";
+        const hoverCtaSrc = "img/cta-icon2.png";
+
+        ctaImg.src = originalCtaSrc;
+
+        ctaButton.addEventListener("mouseenter", () => {
+          ctaImg.src = hoverCtaSrc;
+        });
+
+        ctaButton.addEventListener("mouseleave", () => {
+          ctaImg.src = originalCtaSrc;
+        });
+
+        // --- Slider drag functionality for Works section ---
+        const slider = document.querySelector(".slider-container");
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        slider.addEventListener("mousedown", (e) => {
+          isDown = true;
+          slider.classList.add("active");
+          startX = e.pageX - slider.offsetLeft;
+          scrollLeft = slider.scrollLeft;
+        });
+        slider.addEventListener("mouseleave", () => {
+          isDown = false;
+          slider.classList.remove("active");
+        });
+        slider.addEventListener("mouseup", () => {
+          isDown = false;
+          slider.classList.remove("active");
+        });
+        slider.addEventListener("mousemove", (e) => {
+          if (!isDown) return;
+          e.preventDefault();
+          const x = e.pageX - slider.offsetLeft;
+          const walk = (x - startX) * 2;
+          slider.scrollLeft = scrollLeft - walk;
+        });
+
+        // Touch events for slider
+        slider.addEventListener("touchstart", (e) => {
+          isDown = true;
+          startX = e.touches[0].pageX - slider.offsetLeft;
+          scrollLeft = slider.scrollLeft;
+        });
+
+        slider.addEventListener("touchend", () => {
+          isDown = false;
+        });
+
+        slider.addEventListener("touchmove", (e) => {
+          if (!isDown) return;
+          const x = e.touches[0].pageX - slider.offsetLeft;
+          const walk = (x - startX) * 2;
+          slider.scrollLeft = scrollLeft - walk;
+        });
+      });
+    </script>
+  </body>
+</html>
