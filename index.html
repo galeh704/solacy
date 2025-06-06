@@ -238,19 +238,6 @@
         transform: translate(-50%, -50%) scale(1);
       }
 
-      /* Additional Subtract Image */
-      .additional-subtract-image {
-        position: absolute;
-        opacity: 0;
-        transition: transform 0.8s ease-out, opacity 0.8s ease-out;
-        transform: translate(-50%, -50%) scale(0); /* Awalnya kecil dan tersembunyi */
-        z-index: 8; /* Di belakang white half-circle */
-      }
-      .additional-subtract-image.visible {
-        opacity: 1;
-        /* Scale and position set by JS for dynamic sizing/offset */
-      }
-
       .about-circle {
         background: linear-gradient(
           180deg,
@@ -295,112 +282,244 @@
         );
       }
       .service-icon-wrapper {
-        transform: translateX(-100px); /* Awalnya di luar layar kiri */
         opacity: 0;
-        transition: transform 0.6s ease-out, opacity 0.6s ease-out;
+        transform: translateX(-100%) translateY(50px); /* Start from left and slightly below */
+        transition: opacity 0.5s ease-out, transform 0.5s ease-out; /* Faster and smooth */
       }
       .service-icon-wrapper.animate {
-        transform: translateX(0); /* Bergerak ke posisi asli */
         opacity: 1;
+        transform: translateX(0) translateY(0); /* Animate to original position */
+      }
+      .service-icon-wrapper.highlight {
+        transform: scale(1.03); /* Slight scale highlight */
       }
       .service-card {
-        background-color: white; /* Tidak semi-transparan lagi */
+        background-color: white; /* Not semi-transparent */
+        position: relative;
+        overflow: hidden; /* To hide content that's off-screen */
         transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out; /* Smooth transition for hover effects */
+        height: 280px; /* Fixed height for consistent card size */
       }
-      .service-card p {
+      .service-card .front-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      .service-card .back-content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         opacity: 0;
-        height: 0;
-        overflow: hidden;
-        transition: opacity 0.3s ease-in-out, height 0.3s ease-in-out;
+        transform: translateY(100%); /* Start off-screen at the bottom */
+        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        padding: 20px;
+        box-sizing: border-box;
+        color: #666;
+        text-align: center;
+      }
+      .service-card:hover .front-content {
+        opacity: 0;
+        transform: translateY(-100%); /* Move icon and title off-screen up */
+      }
+      .service-card:hover .back-content {
+        opacity: 1;
+        transform: translateY(0); /* Move description on-screen */
       }
       .service-card:hover {
         transform: translateY(-8px); /* Card lifts up */
         box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2); /* Stronger shadow */
       }
-      .service-card:hover p {
-        opacity: 1;
-        height: auto; /* Biarkan konten menentukan tinggi */
-      }
       .service-card:hover h3 {
-        transform: translateY(-5px);
-        color: #d55897; /* Warna pink saat hover */
+        /* Ensure h3 color change is still smooth */
+        color: #d55897;
       }
       /* Increased icon size */
       .service-card img {
         width: 160px; /* w-40 equivalent */
         height: 160px; /* h-40 equivalent */
+        object-fit: contain; /* Ensure image scales properly */
       }
 
       /* Works Section */
       .works-section-bg {
-        background-color: white; /* Latar belakang putih */
+        background-color: white; /* White background */
       }
       .tape-image {
         position: absolute;
         left: 0;
-        top: 50%; /* Memanjang di tengah vertikal */
-        width: 100%; /* Memanjang full width */
+        top: 50%; /* Extends vertically in the middle */
+        width: 100%; /* Full width */
         height: auto;
-        transform: translateY(-50%) translateX(100%); /* Awalnya di luar layar kanan */
+        transform: translateY(-50%) translateX(100%); /* Initially off-screen to the right */
         opacity: 0;
         transition: transform 1.5s ease-out, opacity 1.5s ease-out;
-        z-index: 10; /* Di belakang cards */
+        z-index: 10; /* Behind cards */
       }
       .tape-image.animate {
-        transform: translateY(-50%) translateX(0); /* Bergerak ke posisi asli */
+        transform: translateY(-50%) translateX(0); /* Moves to original position */
         opacity: 1;
       }
 
-      .portfolio-card {
-        transform: translateY(50px); /* Awalnya di bawah */
-        opacity: 0;
-        transition: transform 0.6s ease-out, opacity 0.6s ease-out,
-          box-shadow 0.3s ease-in-out;
-        cursor: grab;
-        z-index: 20; /* Di atas tape */
-      }
-      .portfolio-card.animate {
-        transform: translateY(0); /* Bergerak ke posisi asli */
-        opacity: 1;
-      }
-      .portfolio-card:hover {
-        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2); /* Efek bayangan saat hover */
-        transform: translateY(-5px); /* Sedikit naik */
-      }
-      .portfolio-card:active {
-        cursor: grabbing;
+      /* Container for 3D perspective */
+      .slider-wrapper {
+        /* New wrapper div */
+        position: relative;
+        perspective: 1500px; /* Stronger perspective for a more pronounced 3D effect */
+        width: 100%;
+        max-width: full;
+        margin: 0 auto;
       }
 
-      /* Slider styles */
       .slider-container {
         display: flex;
         overflow-x: scroll;
         scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch; /* Untuk smooth scrolling di iOS */
+        -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
         padding-bottom: 20px;
-        gap: 20px;
+        gap: 40px; /* Increased gap for better 3D spacing */
+        scroll-padding: 0 25%; /* To center the active slide */
+        transform-style: preserve-3d; /* Crucial for child 3D transforms */
       }
       .slider-container::-webkit-scrollbar {
-        display: none; /* Sembunyikan scrollbar untuk webkit browsers */
+        display: none; /* Hide scrollbar for webkit browsers */
       }
-      .slider-item {
-        flex: 0 0 auto; /* Item tidak akan mengecil */
-        scroll-snap-align: center; /* Snap ke tengah item */
-        width: 300px; /* Lebar card */
+
+      .portfolio-card {
+        flex: 0 0 auto; /* Item will not shrink */
+        scroll-snap-align: center; /* Snap to center of item */
+        width: 300px; /* Width of the card */
+        height: 400px; /* Fixed height for visual consistency */
+        background-color: white;
         border-radius: 10px;
         overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        background-color: white;
+        transition: transform 0.4s ease-out, box-shadow 0.3s ease-in-out; /* Smooth transitions for 3D effects */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative; /* For text overlay */
+        padding: 0; /* Remove padding from here, apply to content */
+      }
+
+      /* Overlay for text content on works cards */
+      .portfolio-card .content-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 20px;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.8) 0%,
+          rgba(0, 0, 0, 0) 100%
+        );
+        color: white;
+        opacity: 0;
+        transform: translateY(100%);
+        transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+        text-align: left;
+      }
+      .portfolio-card:hover .content-overlay,
+      .portfolio-card.highlight .content-overlay {
+        /* Show on hover and highlight */
+        opacity: 1;
+        transform: translateY(0);
+      }
+      .portfolio-card h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+      .portfolio-card p {
+        font-size: 0.9rem;
+        margin-top: 5px;
+      }
+
+      .portfolio-card img {
+        width: 100%;
+        height: 100%; /* Image fills the card */
+        object-fit: cover; /* Cover ensures image fills space */
         transition: transform 0.3s ease-in-out;
+      }
+      .portfolio-card:hover img {
+        transform: scale(1.05); /* Slight zoom on image on hover */
+      }
+
+      /* Adjustments for highlight state */
+      .portfolio-card.highlight {
+        transform: scale(1.1) translateY(-10px) rotateY(0deg) !important; /* More pronounced scale and lift, override dynamic rotation */
+        box-shadow: 0 20px 30px rgba(0, 0, 0, 0.4); /* Stronger shadow */
+        z-index: 25; /* Bring to front when highlighted */
+      }
+      .portfolio-card.highlight:hover {
+        /* Maintain highlight state, override hover lift */
+        transform: scale(1.1) translateY(-10px) rotateY(0deg) !important;
+      }
+
+      /* Slider navigation arrows */
+      .slider-nav-btn {
+        background-color: rgba(228, 21, 126, 0.7);
+        color: white;
+        border-radius: 50%;
+        padding: 10px 15px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 30;
+        transition: background-color 0.3s ease-in-out,
+          transform 0.3s ease-in-out;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        width: 50px; /* Fixed width for better click target */
+        height: 50px; /* Fixed height */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .slider-nav-btn:hover {
+        background-color: rgba(228, 21, 126, 1);
+        transform: translateY(-50%) scale(1.1);
+      }
+      #prev-slide {
+        left: -25px;
+      } /* Adjust position */
+      #next-slide {
+        right: -25px;
+      } /* Adjust position */
+      /* Hide buttons on small screens */
+      @media (max-width: 768px) {
+        .slider-nav-btn {
+          display: none;
+        }
+        .slider-container {
+          scroll-padding: 0 10%; /* Adjust for mobile centering */
+        }
       }
 
       /* Contact Section */
       #contact {
-        background-image: url("img/image 2.png"); /* Latar belakang gambar */
+        background-image: url("img/image 2.png"); /* Background image */
         background-size: cover;
         background-position: center;
+        background-attachment: fixed; /* Parallax effect */
         position: relative;
         overflow: hidden;
+        transition: background-position 0.2s ease-out; /* Smooth parallax movement */
       }
       #contact::before {
         content: "";
@@ -409,21 +528,21 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-color: rgba(0, 0, 0, 0.7); /* Overlay gelap */
+        background-color: rgba(0, 0, 0, 0.7); /* Dark overlay */
         z-index: 1;
       }
       #contact .container {
         position: relative;
-        z-index: 2; /* Pastikan konten form di atas overlay */
+        z-index: 2; /* Ensure form content is above overlay */
       }
-      /* Style untuk form */
+      /* Style for form */
       #contact form {
         background-color: rgba(
           255,
           255,
           255,
           0.95
-        ); /* Sedikit transparan untuk melihat background */
+        ); /* Slightly transparent to see background */
         padding: 40px;
         border-radius: 15px;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
@@ -447,11 +566,12 @@
         padding: 12px 28px;
         border-radius: 50px;
         font-weight: bold;
-        transition: background-color 0.3s, transform 0.3s;
+        transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
       }
       #contact button[type="submit"]:hover {
         background-color: #a30e5f;
-        transform: translateY(-2px);
+        transform: translateY(-2px) scale(1.05); /* Lift and slight scale */
+        box-shadow: 0 5px 15px rgba(228, 21, 126, 0.4); /* Pink shadow */
       }
 
       /* Sticky CTA Button */
@@ -474,13 +594,22 @@
 
       /* Footer Social Icons */
       .social-icon {
-        display: flex; /* Untuk menata ikon dan teks */
+        display: flex; /* For arranging icon and text */
         align-items: center;
         transition: transform 0.3s ease-in-out, color 0.3s ease-in-out;
       }
       .social-icon:hover {
-        transform: scale(1.1); /* Membesar saat hover */
-        color: #ccc; /* Warna sedikit berubah */
+        transform: scale(1.1); /* Enlarges on hover */
+        color: #ccc; /* Slightly changes color */
+      }
+      .social-icon i {
+        transition: color 0.3s ease-in-out;
+      }
+      .social-icon:hover i.fa-instagram {
+        color: #e1306c; /* Instagram pink */
+      }
+      .social-icon:hover i.fa-tiktok {
+        color: #00f2ea; /* TikTok blue */
       }
     </style>
   </head>
@@ -607,15 +736,6 @@
         style="left: 50%; top: 50%"
       ></div>
 
-      <!-- Additional Subtract Image -->
-<!--       <img
-        id="additional-subtract-logo"
-        src="img/subtract.png"
-        alt="Solacy Logo Subtract"
-        class="additional-subtract-image"
-        style="left: 50%; top: 50%"
-      /> -->
-
       <!-- Animated Circle for About Content -->
       <div
         id="about-circle"
@@ -625,6 +745,31 @@
         <p id="about-content-text" class="about-text p-4">
           We don’t just create campaigns. We create calm, clear, and confident
           brands.
+        </p>
+      </div>
+    </section>
+
+    <!-- What is Solacy? Section -->
+    <section
+      id="what-is-solacy"
+      class="bg-white py-20 relative z-20 min-h-screen flex flex-col items-center justify-center"
+    >
+      <div class="container mx-auto text-center px-4">
+        <h2 class="text-4xl font-bold text-gray-800 mb-8">What is Solacy?</h2>
+        <p class="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+          Solacy is a dynamic creative agency dedicated to transforming your
+          brand's vision into impactful reality. We specialize in crafting
+          compelling narratives, stunning visuals, and strategic campaigns that
+          resonate with your audience and drive measurable growth. From social
+          media presence to comprehensive web design and engaging live shopping
+          experiences, we empower businesses to connect confidently in a crowded
+          digital landscape.
+        </p>
+        <p class="text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed mt-4">
+          Our approach is rooted in understanding your unique needs and
+          delivering tailored solutions that not only look good but perform
+          exceptionally. We believe in clear communication, creative innovation,
+          and building long-lasting partnerships with our clients.
         </p>
       </div>
     </section>
@@ -639,103 +784,118 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           <div
             class="service-icon-wrapper flex flex-col items-center p-6 rounded-lg shadow-lg service-card"
+            data-parallax-speed="0.1"
           >
-            <img
-              src="img/sosmed1.png"
-              alt="Social Media Icon"
-              class="w-40 h-40 mb-4 object-contain"
-            />
-            <h3
-              class="text-xl font-semibold text-gray-700 mt-2 service-card-text transition-all duration-300"
-            >
-              Social Media Management
-            </h3>
-            <p
-              class="text-gray-600 text-center mt-2 transition-all duration-300"
-            >
-              Strategize, create, and manage engaging social media content to
-              boost your brand's presence.
-            </p>
+            <div class="front-content">
+              <img
+                src="img/sosmed1.png"
+                alt="Social Media Icon"
+                class="w-40 h-40 mb-4 object-contain"
+              />
+              <h3
+                class="text-xl font-semibold text-gray-700 mt-2 transition-all duration-300"
+              >
+                Social Media Management
+              </h3>
+            </div>
+            <div class="back-content">
+              <p>
+                Strategize, create, and manage engaging social media content to
+                boost your brand's presence.
+              </p>
+            </div>
           </div>
           <div
             class="service-icon-wrapper flex flex-col items-center p-6 rounded-lg shadow-lg service-card"
+            data-parallax-speed="0.08"
           >
-            <img
-              src="img/camera1.png"
-              alt="Photoshoot Icon"
-              class="w-40 h-40 mb-4 object-contain"
-            />
-            <h3
-              class="text-xl font-semibold text-gray-700 mt-2 service-card-text transition-all duration-300"
-            >
-              Photoshoot & Videoshoot
-            </h3>
-            <p
-              class="text-gray-600 text-center mt-2 transition-all duration-300"
-            >
-              High-quality visual content creation to capture your brand's
-              essence and tell its story.
-            </p>
+            <div class="front-content">
+              <img
+                src="img/camera1.png"
+                alt="Photoshoot Icon"
+                class="w-40 h-40 mb-4 object-contain"
+              />
+              <h3
+                class="text-xl font-semibold text-gray-700 mt-2 transition-all duration-300"
+              >
+                Photoshoot & Videoshoot
+              </h3>
+            </div>
+            <div class="back-content">
+              <p>
+                High-quality visual content creation to capture your brand's
+                essence and tell its story.
+              </p>
+            </div>
           </div>
           <div
             class="service-icon-wrapper flex flex-col items-center p-6 rounded-lg shadow-lg service-card"
+            data-parallax-speed="0.12"
           >
-            <img
-              src="img/campaign1.png"
-              alt="Campaign Icon"
-              class="w-40 h-40 mb-4 object-contain"
-            />
-            <h3
-              class="text-xl font-semibold text-gray-700 mt-2 service-card-text transition-all duration-300"
-            >
-              Campaign Package
-            </h3>
-            <p
-              class="text-gray-600 text-center mt-2 transition-all duration-300"
-            >
-              Comprehensive campaign strategies from concept to execution,
-              driving measurable results.
-            </p>
+            <div class="front-content">
+              <img
+                src="img/campaign1.png"
+                alt="Campaign Icon"
+                class="w-40 h-40 mb-4 object-contain"
+              />
+              <h3
+                class="text-xl font-semibold text-gray-700 mt-2 transition-all duration-300"
+              >
+                Campaign Package
+              </h3>
+            </div>
+            <div class="back-content">
+              <p>
+                Comprehensive campaign strategies from concept to execution,
+                driving measurable results.
+              </p>
+            </div>
           </div>
           <div
             class="service-icon-wrapper flex flex-col items-center p-6 rounded-lg shadow-lg service-card"
+            data-parallax-speed="0.09"
           >
-            <img
-              src="img/live1.png"
-              alt="Live Shopping Icon"
-              class="w-40 h-40 mb-4 object-contain"
-            />
-            <h3
-              class="text-xl font-semibold text-gray-700 mt-2 service-card-text transition-all duration-300"
-            >
-              Live Shopping Package
-            </h3>
-            <p
-              class="text-gray-600 text-center mt-2 transition-all duration-300"
-            >
-              Engage your audience with interactive live shopping experiences
-              for product launches and sales.
-            </p>
+            <div class="front-content">
+              <img
+                src="img/live1.png"
+                alt="Live Shopping Icon"
+                class="w-40 h-40 mb-4 object-contain"
+              />
+              <h3
+                class="text-xl font-semibold text-gray-700 mt-2 transition-all duration-300"
+              >
+                Live Shopping Package
+              </h3>
+            </div>
+            <div class="back-content">
+              <p>
+                Engage your audience with interactive live shopping experiences
+                for product launches and sales.
+              </p>
+            </div>
           </div>
           <div
             class="service-icon-wrapper flex flex-col items-center p-6 rounded-lg shadow-lg service-card"
+            data-parallax-speed="0.11"
           >
-            <img
-              src="img/web1.png"
-              alt="Web Design Icon"
-              class="w-40 h-40 mb-4 object-contain"
-            />
-            <h3
-              class="text-xl font-semibold text-gray-700 mt-2 service-card-text transition-all duration-300"
-            >
-              Web Design Service
-            </h3>
-            <p
-              class="text-gray-600 text-center mt-2 transition-all duration-300"
-            >
-              Crafting stunning and functional websites that captivate visitors
-              and convert leads.
-            </p>
+            <div class="front-content">
+              <img
+                src="img/web1.png"
+                alt="Web Design Icon"
+                class="w-40 h-40 mb-4 object-contain"
+              />
+              <h3
+                class="text-xl font-semibold text-gray-700 mt-2 transition-all duration-300"
+              >
+                Web Design Service
+              </h3>
+            </div>
+            <div class="back-content">
+              <p>
+                Crafting stunning and functional websites that captivate
+                visitors and convert leads.
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -757,59 +917,86 @@
       <div class="container mx-auto text-center px-4 relative z-20">
         <h2 class="text-4xl font-bold text-gray-800 mb-12">Our Works</h2>
 
-        <div class="slider-container mt-16 max-w-full lg:max-w-4xl mx-auto">
-          <div class="slider-item portfolio-card p-6">
-            <img
-              src="https://placehold.co/300x200/cccccc/FFFFFF?text=Portfolio+1"
-              alt="Portfolio Image 1"
-              class="w-full h-auto rounded-md mb-4"
-            />
-            <h3 class="text-xl font-semibold text-gray-700">
-              Lorem Ipsum Project 1
-            </h3>
-            <p class="text-gray-600 mt-2">
-              A dummy project description for portfolio item 1.
-            </p>
+        <div
+          class="relative w-full max-w-full lg:max-w-4xl mx-auto slider-wrapper"
+        >
+          <!-- Added slider-wrapper -->
+          <div class="slider-container mt-16">
+            <!-- Style 1: Basic with full image and overlay -->
+            <div
+              class="slider-item portfolio-card p-0"
+              data-parallax-speed="0.05"
+            >
+              <img
+                src="https://placehold.co/300x400/cccccc/FFFFFF?text=Project+Alpha"
+                alt="Project Alpha"
+              />
+              <div class="content-overlay">
+                <h3>Digital Marketing Campaign</h3>
+                <p>
+                  A comprehensive digital strategy for brand visibility and
+                  growth.
+                </p>
+              </div>
+            </div>
+            <!-- Style 2: Smaller image (as icon), more text space, different layout -->
+            <div
+              class="slider-item portfolio-card p-0"
+              data-parallax-speed="0.07"
+            >
+              <img
+                src="https://placehold.co/300x400/bbbbbb/FFFFFF?text=Web+Design"
+                alt="Web Design"
+              />
+              <div class="content-overlay">
+                <h3>Responsive Web Development</h3>
+                <p>
+                  Crafting user-centric websites with modern design principles.
+                </p>
+              </div>
+            </div>
+            <!-- Style 1: Another basic with full image and overlay -->
+            <div
+              class="slider-item portfolio-card p-0"
+              data-parallax-speed="0.08"
+            >
+              <img
+                src="https://placehold.co/300x400/dddddd/FFFFFF?text=Branding"
+                alt="Branding"
+              />
+              <div class="content-overlay">
+                <h3>Brand Identity & Logo Design</h3>
+                <p>
+                  Developing unique brand identities that leave a lasting
+                  impression.
+                </p>
+              </div>
+            </div>
+            <!-- Style 2: Another smaller image, more text space -->
+            <div
+              class="slider-item portfolio-card p-0"
+              data-parallax-speed="0.04"
+            >
+              <img
+                src="https://placehold.co/300x400/aaaaaa/FFFFFF?text=Video"
+                alt="Video Production"
+              />
+              <div class="content-overlay">
+                <h3>Video Production & Editing</h3>
+                <p>
+                  From concept to final cut, professional video solutions for
+                  your brand.
+                </p>
+              </div>
+            </div>
           </div>
-          <div class="slider-item portfolio-card p-6">
-            <img
-              src="https://placehold.co/300x200/cccccc/FFFFFF?text=Portfolio+2"
-              alt="Portfolio Image 2"
-              class="w-full h-auto rounded-md mb-4"
-            />
-            <h3 class="text-xl font-semibold text-gray-700">
-              Lorem Ipsum Project 2
-            </h3>
-            <p class="text-gray-600 mt-2">
-              A dummy project description for portfolio item 2.
-            </p>
-          </div>
-          <div class="slider-item portfolio-card p-6">
-            <img
-              src="https://placehold.co/300x200/cccccc/FFFFFF?text=Portfolio+3"
-              alt="Portfolio Image 3"
-              class="w-full h-auto rounded-md mb-4"
-            />
-            <h3 class="text-xl font-semibold text-gray-700">
-              Lorem Ipsum Project 3
-            </h3>
-            <p class="text-gray-600 mt-2">
-              A dummy project description for portfolio item 3.
-            </p>
-          </div>
-          <div class="slider-item portfolio-card p-6">
-            <img
-              src="https://placehold.co/300x200/cccccc/FFFFFF?text=Portfolio+4"
-              alt="Portfolio Image 4"
-              class="w-full h-auto rounded-md mb-4"
-            />
-            <h3 class="text-xl font-semibold text-gray-700">
-              Lorem Ipsum Project 4
-            </h3>
-            <p class="text-gray-600 mt-2">
-              A dummy project description for portfolio item 4.
-            </p>
-          </div>
+          <!-- Slider Navigation Buttons -->
+          <button id="prev-slide" class="slider-nav-btn">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <button id="next-slide" class="slider-nav-btn">
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
       </div>
     </section>
@@ -933,7 +1120,7 @@
         <div>
           <h3 class="text-xl font-bold mb-4">Follow Us</h3>
           <div class="flex flex-col space-y-4">
-            <!-- Diubah menjadi kolom (atas-bawah) -->
+            <!-- Changed to column (top-to-bottom) -->
             <a
               href="https://instagram.com/solacy.id"
               target="_blank"
@@ -954,7 +1141,7 @@
         </div>
       </div>
       <div class="text-center mt-8 text-sm text-gray-300">
-        &copy; 2025 Solacy Creative Agency. All rights reserved.
+        &copy; 2024 Solacy Creative Agency. All rights reserved.
       </div>
     </footer>
 
@@ -968,9 +1155,6 @@
         const whiteHalfCircle = document.getElementById("white-half-circle");
         const aboutCircle = document.getElementById("about-circle");
         const aboutContentText = document.getElementById("about-content-text");
-        const additionalSubtractLogo = document.getElementById(
-          "additional-subtract-logo"
-        );
 
         // Mobile Menu elements
         const hamburgerMenu = document.getElementById("hamburger-menu");
@@ -1062,7 +1246,6 @@
         let isHoveredOnAboutCircle = false; // New state to track hover for mouse follow
         const moveSensitivity = 0.05; // How much the circle moves relative to mouse (smaller value = less movement)
         const whiteCircleOffsetFactor = 0.1; // White circle moves slightly less, to create parallax depth
-        const additionalSubtractOffsetFactor = 0.2; // Additional subtract moves slightly more
 
         const updateCirclePosition = () => {
           if (
@@ -1094,17 +1277,6 @@
           }px), calc(-50% - ${
             clampedOffsetY * whiteCircleOffsetFactor
           }px)) scale(1)`;
-
-          // Calculate size based on current aboutCircle width (which is `circleSize` when visible)
-          const currentCircleWidth = aboutCircle.offsetWidth;
-          const subtractHeightOffset = currentCircleWidth * 0.2; // Move it down by 20% of circle width
-
-          additionalSubtractLogo.style.transform = `translate(calc(-50% + ${
-            clampedOffsetX * additionalSubtractOffsetFactor
-          }px), calc(-50% + ${
-            clampedOffsetY * additionalSubtractOffsetFactor +
-            subtractHeightOffset
-          }px)) scale(1)`;
         };
 
         const handleMouseMoveAboutSection = (e) => {
@@ -1124,7 +1296,6 @@
             if (entry.isIntersecting) {
               aboutCircle.classList.add("visible");
               whiteHalfCircle.classList.add("visible");
-              additionalSubtractLogo.classList.add("visible");
 
               // Set circle size dynamically
               const circleSize = Math.min(
@@ -1140,19 +1311,12 @@
               whiteHalfCircle.style.width = `${halfCircleSize}px`;
               whiteHalfCircle.style.height = `${halfCircleSize}px`;
 
-              // Set additional subtract image size and initial position
-              additionalSubtractLogo.style.width = `${circleSize * 2.5}px`; // 2x lingkaran
-              additionalSubtractLogo.style.height = `${circleSize * 1.5}px`; // 3/4 lingkaran
-              const subtractHeightOffset = circleSize * 0.5; // Offset for "agak kebawah"
-              additionalSubtractLogo.style.transform = `translate(-50%, calc(-50% + ${subtractHeightOffset}px)) scale(1)`;
-
               // Set initial text
               aboutContentText.textContent = text1;
             } else {
               // When NOT intersecting, remove visible class for smooth exit animation
               aboutCircle.classList.remove("visible");
               whiteHalfCircle.classList.remove("visible");
-              additionalSubtractLogo.classList.remove("visible"); // Remove visible class for the new subtract image
               isHoveredOnAboutCircle = false; // Reset hover state
               aboutUsSection.removeEventListener(
                 "mousemove",
@@ -1195,92 +1359,178 @@
             // Only reset if still visible (not scrolled out)
             aboutCircle.style.transform = `translate(-50%, -50%) scale(1)`;
             whiteHalfCircle.style.transform = `translate(-50%, -50%) scale(1)`;
-            // Reset additional subtract image position
-            const circleSize = Math.min(
-              aboutUsSection.offsetWidth * 0.7,
-              aboutUsSection.offsetHeight * 0.7,
-              600
-            );
-            const subtractHeightOffset = circleSize * 0.2;
-            additionalSubtractLogo.style.transform = `translate(-50%, calc(-50% + ${subtractHeightOffset}px)) scale(1)`;
           }
         });
 
-        // --- Services Section Animations ---
+        // --- Services Section Animations (Parallax & Highlight) ---
         const servicesSection = document.getElementById("services");
         const serviceIconWrappers = document.querySelectorAll(
           ".service-icon-wrapper"
         );
 
-        const servicesObserver = new IntersectionObserver(
+        const servicesParallaxObserver = new IntersectionObserver(
           (entries) => {
             entries.forEach((entry) => {
+              const wrapper = entry.target;
+              const speed = parseFloat(wrapper.dataset.parallaxSpeed || 0); // Get parallax speed from data attribute
               if (entry.isIntersecting) {
-                serviceIconWrappers.forEach((wrapper, index) => {
-                  setTimeout(() => {
-                    wrapper.classList.add("animate");
-                  }, index * 200);
-                });
+                const scrollY = window.scrollY;
+                const sectionTop = servicesSection.offsetTop;
+                const offset = (scrollY - sectionTop) * speed;
+                // Apply parallax to transformY, combine with translateX for entrance animation
+                wrapper.style.transform = `translateX(0) translateY(${offset}px)`;
+                wrapper.classList.add("animate"); // Trigger entrance animation
               } else {
-                serviceIconWrappers.forEach((wrapper) =>
-                  wrapper.classList.remove("animate")
-                );
-              }
-            });
-          },
-          { threshold: 0.2 }
-        );
-
-        servicesObserver.observe(servicesSection);
-
-        // --- Works Section Animations (Tape and Portfolio Cards) ---
-        const worksSection = document.getElementById("works");
-        const tapeImage = document.getElementById("tape-image");
-        const portfolioCards = document.querySelectorAll(".portfolio-card");
-
-        const worksObserver = new IntersectionObserver(
-          (entries) => {
-            entries.forEach((entry) => {
-              if (entry.isIntersecting) {
-                tapeImage.classList.add("animate");
-                setTimeout(() => {
-                  portfolioCards.forEach((card, index) => {
-                    setTimeout(() => {
-                      card.classList.add("animate");
-                    }, index * 150);
-                  });
-                }, 800);
-              } else {
-                tapeImage.classList.remove("animate");
-                portfolioCards.forEach((card) =>
-                  card.classList.remove("animate")
-                );
+                wrapper.classList.remove("animate");
+                wrapper.style.transform = `translateX(-100%) translateY(50px)`; // Reset for re-animation
               }
             });
           },
           { threshold: 0.1 }
         );
 
+        // Highlight observer for services cards
+        const servicesHighlightObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("highlight");
+              } else {
+                entry.target.classList.remove("highlight");
+              }
+            });
+          },
+          { threshold: 0.7 }
+        ); // Highlight when 70% visible
+
+        serviceIconWrappers.forEach((wrapper) => {
+          servicesParallaxObserver.observe(wrapper);
+          servicesHighlightObserver.observe(wrapper);
+        });
+
+        // Update parallax on scroll
+        window.addEventListener("scroll", () => {
+          serviceIconWrappers.forEach((wrapper) => {
+            const rect = wrapper.getBoundingClientRect();
+            // Only apply parallax if element is in or near viewport
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+              const speed = parseFloat(wrapper.dataset.parallaxSpeed || 0);
+              const scrollY = window.scrollY;
+              const sectionTop = servicesSection.offsetTop;
+              const offset = (scrollY - sectionTop) * speed;
+              wrapper.style.transform = `translateX(0) translateY(${offset}px)`;
+            }
+          });
+        });
+
+        // --- Works Section Animations (Tape, Portfolio Cards, Slider Nav) ---
+        const worksSection = document.getElementById("works");
+        const tapeImage = document.getElementById("tape-image");
+        const portfolioCards = document.querySelectorAll(".portfolio-card");
+        const slider = document.querySelector(".slider-container");
+        const prevSlideBtn = document.getElementById("prev-slide");
+        const nextSlideBtn = document.getElementById("next-slide");
+
+        // Works Section Entrance Animation (Tape and Cards)
+        const worksObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                tapeImage.classList.add("animate");
+                portfolioCards.forEach((card, index) => {
+                  // Initial animation for cards to appear, then dynamic transforms take over
+                  setTimeout(() => {
+                    card.style.opacity = "1";
+                    card.style.transform =
+                      "translateY(0px) scale(1) rotateY(0deg)"; // Reset for dynamic transforms
+                  }, index * 150);
+                });
+              } else {
+                tapeImage.classList.remove("animate");
+                portfolioCards.forEach((card) => {
+                  card.style.opacity = "0"; // Hide when out of view
+                  card.style.transform =
+                    "translateY(50px) scale(0.8) rotateY(0deg)"; // Reset for re-animation
+                });
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
         worksObserver.observe(worksSection);
 
-        // --- Sticky CTA Button image change on hover ---
-        const ctaButton = document.getElementById("sticky-cta-button");
-        const ctaImg = document.getElementById("cta-img");
-        const originalCtaSrc = "img/cta-icon.png";
-        const hoverCtaSrc = "img/cta-icon2.png";
+        // Works Slider 3D Effect & Highlight
+        const updateWorksCardsVisuals = () => {
+          const sliderCenterX = slider.scrollLeft + slider.clientWidth / 2;
+          portfolioCards.forEach((card) => {
+            const cardCenterX = card.offsetLeft + card.offsetWidth / 2;
+            const distance = cardCenterX - sliderCenterX; // Distance from center of slider
 
-        ctaImg.src = originalCtaSrc;
+            // A smaller divisor for a more pronounced effect
+            const maxDistanceForEffect = slider.clientWidth / 2; // Effect strongest within this range
 
-        ctaButton.addEventListener("mouseenter", () => {
-          ctaImg.src = hoverCtaSrc;
+            // Normalize distance from -1 to 1 (0 at center)
+            const normalizedDistance = Math.max(
+              -1,
+              Math.min(1, distance / maxDistanceForEffect)
+            );
+
+            // Scale: Larger in center, smaller towards edges
+            // Adjust the 0.2 factor for how much scale changes
+            const scale = 1 - Math.abs(normalizedDistance) * 0.15; // e.g., 1.0 at center, 0.85 at maxDistance
+
+            // Rotation: Rotate slightly left when on right, right when on left
+            const maxRotation = 10; // Max degrees of rotation
+            const rotateY = -normalizedDistance * maxRotation; // e.g., -1 * 10 = -10deg (left card rotates right)
+
+            // Apply transforms
+            card.style.transform = `scale(${scale}) rotateY(${rotateY}deg)`;
+
+            // Highlight the most central card
+            if (Math.abs(normalizedDistance) < 0.1) {
+              // If very close to center (within 10% of normalized distance)
+              card.classList.add("highlight");
+            } else {
+              card.classList.remove("highlight");
+            }
+          });
+        };
+
+        // Call on scroll and resize
+        slider.addEventListener("scroll", updateWorksCardsVisuals);
+        window.addEventListener("resize", updateWorksCardsVisuals); // Recalculate on resize
+        // Initial call
+        updateWorksCardsVisuals();
+
+        // Works Slider Navigation
+        prevSlideBtn.addEventListener("click", () => {
+          // Calculate scroll amount based on first card's width and gap
+          const firstCard = slider.querySelector(".slider-item");
+          if (firstCard) {
+            const cardWidth = firstCard.offsetWidth;
+            const gap = parseFloat(window.getComputedStyle(slider).gap);
+            const scrollAmount = cardWidth + gap;
+            slider.scrollBy({
+              left: -scrollAmount,
+              behavior: "smooth",
+            });
+          }
         });
 
-        ctaButton.addEventListener("mouseleave", () => {
-          ctaImg.src = originalCtaSrc;
+        nextSlideBtn.addEventListener("click", () => {
+          // Calculate scroll amount based on first card's width and gap
+          const firstCard = slider.querySelector(".slider-item");
+          if (firstCard) {
+            const cardWidth = firstCard.offsetWidth;
+            const gap = parseFloat(window.getComputedStyle(slider).gap);
+            const scrollAmount = cardWidth + gap;
+            slider.scrollBy({
+              left: scrollAmount,
+              behavior: "smooth",
+            });
+          }
         });
 
-        // --- Slider drag functionality for Works section ---
-        const slider = document.querySelector(".slider-container");
         let isDown = false;
         let startX;
         let scrollLeft;
@@ -1323,6 +1573,42 @@
           const x = e.touches[0].pageX - slider.offsetLeft;
           const walk = (x - startX) * 2;
           slider.scrollLeft = scrollLeft - walk;
+        });
+
+        // --- Contact Section Parallax ---
+        const contactSection = document.getElementById("contact");
+        const contactBgParallaxSpeed = 0.2; // Adjust for stronger/weaker effect
+
+        window.addEventListener("scroll", () => {
+          const scrollY = window.scrollY;
+          const sectionTop = contactSection.offsetTop;
+          const sectionHeight = contactSection.offsetHeight;
+          const viewportHeight = window.innerHeight;
+
+          // Calculate vertical position relative to the section's center
+          const sectionCenter = sectionTop + sectionHeight / 2;
+          const scrollCenter = scrollY + viewportHeight / 2;
+
+          const parallaxOffset =
+            (scrollCenter - sectionCenter) * contactBgParallaxSpeed;
+
+          contactSection.style.backgroundPositionY = `${50 + parallaxOffset}px`;
+        });
+
+        // --- Sticky CTA Button image change on hover ---
+        const ctaButton = document.getElementById("sticky-cta-button");
+        const ctaImg = document.getElementById("cta-img");
+        const originalCtaSrc = "img/cta-icon.png";
+        const hoverCtaSrc = "img/cta-icon2.png";
+
+        ctaImg.src = originalCtaSrc;
+
+        ctaButton.addEventListener("mouseenter", () => {
+          ctaImg.src = hoverCtaSrc;
+        });
+
+        ctaButton.addEventListener("mouseleave", () => {
+          ctaImg.src = originalCtaSrc;
         });
       });
     </script>
