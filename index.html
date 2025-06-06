@@ -273,6 +273,31 @@
         word-break: break-word; /* Ensure text breaks within container */
       }
 
+      /* What is Solacy Section */
+      #what-is-solacy {
+        position: relative; /* Needed for child absolute positioning */
+        overflow: hidden; /* Hide overflowing parts of the background image */
+      }
+      #what-is-solacy::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0; /* Position to the right */
+        width: 80%; /* Adjust size as needed */
+        height: 100%;
+        background-image: url("img/logo2.png");
+        background-size: contain; /* Ensure the image fits */
+        background-repeat: no-repeat;
+        background-position: right center; /* Position to the right center */
+        opacity: 0.1; /* Semi-transparent */
+        z-index: 1; /* Behind the content */
+        pointer-events: none; /* Make it unclickable */
+      }
+      #what-is-solacy .container {
+        position: relative;
+        z-index: 2; /* Content on top of the background image */
+      }
+
       /* Services Section */
       .services-section-bg {
         background: linear-gradient(
@@ -284,7 +309,7 @@
       .service-icon-wrapper {
         opacity: 0;
         transform: translateX(-100%) translateY(50px); /* Start from left and slightly below */
-        transition: opacity 0.5s ease-out, transform 0.5s ease-out; /* Faster and smooth */
+        transition: opacity 0.3s ease-out, transform 0.3s ease-out; /* Faster and smooth */
       }
       .service-icon-wrapper.animate {
         opacity: 1;
@@ -830,7 +855,7 @@
           </div>
           <div
             class="service-icon-wrapper flex flex-col items-center p-6 rounded-lg shadow-lg service-card"
-            data-parallax-speed="0.12"
+            data-parallax-speed="00.12"
           >
             <div class="front-content">
               <img
